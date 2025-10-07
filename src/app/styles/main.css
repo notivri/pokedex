@@ -1,0 +1,27 @@
+body {
+  font-family: "inglobal";
+  font-size: 16pt;
+  color: #1e1d1d;
+}
+
+h1 {
+  font-size: 21pt;
+}
+
+h2 {
+  font-size: 16pt;
+}
+
+h3 {
+  font-size: 12pt;
+}
+
+p {
+  font-size: 12pt;
+  color: #575757;
+}
+
+a {
+  color: initial;
+  text-decoration: none;
+}
