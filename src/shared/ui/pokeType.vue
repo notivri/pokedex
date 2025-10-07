@@ -1,8 +1,12 @@
 <template>
-  <div class="type">
+  <button :style="{ 'background-color': props.color ?? 'black' }" class="type">
     <h3><slot /></h3>
-  </div>
+  </button>
 </template>
+
+<script setup>
+  const props = defineProps(["color"])
+</script>
 
 <style scoped>
   .type {
@@ -13,6 +17,13 @@
     border-radius: 10rem;
     padding: 0.275rem 1rem;
     color: white;
-    background-color: #a891ec;
+
+    &.inactive {
+      opacity: 0.3;
+
+      &:hover {
+        opacity: 0.5;
+      }
+    }
   }
 </style>

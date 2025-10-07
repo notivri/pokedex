@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="wrapper">
     <header>
       <div class="logo">
         <div class="circle">

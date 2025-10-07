@@ -9,7 +9,7 @@
         <slot name="types" />
       </div>
     </div>
-    <div class="logo" :style="{ backgroundColor: props.color }">
+    <div class="logo" :style="{ backgroundColor: props.color ?? black }">
       <img
         class="pokeball"
         src="@/app/assets/icons/pokeball.svg"
@@ -67,11 +67,10 @@
     z-index: 2;
     overflow: clip;
     overflow-clip-margin: 10rem;
-    clip-path: inset(-10rem 0 1px 0);
+    clip-path: inset(-100% 0 0 0);
 
     & .image-wrapper {
       transform: translate(5%, -15%);
-      border-radius: 3rem;
 
       & :deep(.pokemon-image) {
         width: 250px;

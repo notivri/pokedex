@@ -25,3 +25,13 @@ a {
   color: initial;
   text-decoration: none;
 }
+
+button {
+  all: unset;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  &:hover {
+    scale: 110%;
+  }
+}
