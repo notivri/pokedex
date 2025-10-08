@@ -1,20 +1,26 @@
 <template>
   <div class="evo-wrapper" v-if="evolutionStages.length">
-    <div class="stage" v-for="(p, idx) in evolutionStages" :key="p.id">
-      <router-link :to="`/pokemon/${p.id}`" class="stage-card">
+    <div
+      class="stage"
+      v-for="pokemonStage in evolutionStages"
+      :key="pokemonStage.id"
+    >
+      <router-link :to="`/pokemon/${pokemonStage.id}`" class="stage-card">
         <img
-          :src="p.image"
-          :alt="p.name"
-          :class="{ inactive: p.name !== pokemon.name }"
+          :src="pokemonStage.image"
+          :alt="pokemonStage.name"
+          :class="{ inactive: pokemonStage.name !== pokemon.name }"
         />
         <div class="name-wrapper">
-          <span :class="{ inactive: p.name !== pokemon.name }" class="name">
-            {{ p.name }}
+          <span
+            :class="{ inactive: pokemonStage.name !== pokemon.name }"
+            class="name"
+          >
+            {{ pokemonStage.name }}
           </span>
-          <span class="id">#{{ p.id }}</span>
+          <span class="id">#{{ pokemonStage.id }}</span>
         </div>
       </router-link>
-      <div v-if="idx < evolutionStages.length - 1" class="arrow">→</div>
     </div>
   </div>
 </template>
@@ -43,6 +49,12 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+
+    &:not(:last-child)::after {
+      content: "→";
+      font-size: 1.5rem;
+      color: rgba(0, 0, 0, 0.4);
+    }
   }
 
   .stage-card {
@@ -62,12 +74,6 @@
     }
   }
 
-  .name-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
   .name {
     text-transform: capitalize;
     font-family: "Archive";
@@ -78,13 +84,14 @@
     }
   }
 
+  .name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .id {
     color: gray;
     font-size: 12pt;
-  }
-
-  .arrow {
-    font-size: 1.5rem;
-    color: rgba(0, 0, 0, 0.4);
   }
 </style>

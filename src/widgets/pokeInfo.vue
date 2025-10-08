@@ -4,6 +4,11 @@
       class="image"
       :style="{ 'background-color': pokeColors[pokemonColor] }"
     >
+      <img
+        src="@/app/assets/icons/pokeball.svg"
+        alt="pokeball"
+        class="pokeball"
+      />
       <img :src="pokemonImage" :alt="pokemon.name" />
     </div>
 
@@ -70,7 +75,18 @@
     overflow: hidden;
 
     .image {
+      position: relative;
       padding: 20px;
+      z-index: 1;
+
+      & .pokeball {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20rem;
+        z-index: -1;
+      }
 
       img {
         max-width: 100%;

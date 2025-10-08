@@ -65,11 +65,11 @@
     height: 100%;
     border-radius: 0 2rem 2rem 0;
     z-index: 2;
-    overflow: clip;
     overflow-clip-margin: 10rem;
     clip-path: inset(-100% 0 0 0);
 
     & .image-wrapper {
+      overflow: clip;
       transform: translate(5%, -15%);
 
       & :deep(.pokemon-image) {
