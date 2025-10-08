@@ -1,84 +1,80 @@
 <template>
   <main>
     <div class="wrapper">
-      <typeSelector :types :selectedType @select-type="handleSelectType" />
-      <pokemonGrid :pokemons="pokemonsOnPage" />
+      <typeSelector
+        :types="allTypes"
+        :selectedType
+        @select-type="handleSelectType"
+      />
+      <pokemonGrid :pokemonsOnPage />
     </div>
   </main>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, watch } from "vue"
-  import api from "../entites/pokemon/api/api.js"
+  import { ref, onMounted } from "vue"
   import pokemonGrid from "../widgets/pokemonGrid.vue"
   import typeSelector from "../widgets/typeSelector.vue"
+  import Api from "../entites/pokemon"
+  import { getIdFromUrl } from "../shared/lib/pokemon"
 
-  const MAX_ITEMS_PER_PAGE = 21
+  const MAX_ID = 151
 
-  const pokemonList = ref([])
   const pokemonsOnPage = ref([])
-  const types = ref([])
+  const allTypes = ref([{ name: "all" }])
   const selectedType = ref("all")
-  const currentPage = ref(1)
 
-  const paginatedList = computed(() => {
-    const start = (currentPage.value - 1) * MAX_ITEMS_PER_PAGE
-    const end = start + MAX_ITEMS_PER_PAGE
+  const loading = ref(false)
 
-    return pokemonList.value.slice(start, end)
-  })
+  function handleSelectType(typeName) {
+    if (selectedType.value == typeName) return
 
-  const loadPokemonList = async (listPromise) => {
-    try {
-      pokemonList.value = await listPromise
-    } catch (error) {
-      console.error("Failed to load pokemon list:", error)
-      pokemonList.value = []
-    }
+    selectedType.value = typeName
+    pokemonsOnPage.value = []
+    loadPokemons()
   }
 
-  const handleSelectType = async (type) => {
-    selectedType.value = type
-    currentPage.value = 1
+  async function loadPokemons() {
+    loading.value = true
 
-    if (type === "all") {
-      await loadPokemonList(api.getPokemons(151))
-    } else {
-      await loadPokemonList(api.getPokemonsByType(type))
+    try {
+      let pokemonList = null
+
+      if (selectedType.value === "all") {
+        const data = await Api.getAllPokemons()
+        pokemonList = data
+      } else {
+        const data = await Api.getTypeInfo(selectedType.value)
+        pokemonList = data.pokemon.map((p) => p.pokemon)
+      }
+
+      const detailedPokemons = await Promise.all(
+        pokemonList
+          .filter((pokemon) => getIdFromUrl(pokemon.url) <= MAX_ID)
+          .map(async (pokemon) => {
+            const pokemonName = pokemon?.name ?? pokemon.pokemon.name
+
+            const details = await Api.getPokemon(pokemonName)
+            const species = await Api.getPokemonSpecies(pokemonName)
+            return { ...details, species }
+          })
+      )
+
+      pokemonsOnPage.value = detailedPokemons
+    } catch (err) {
+      console.error(err)
+    } finally {
+      loading.value = false
     }
   }
 
   onMounted(async () => {
-    try {
-      const [loadedTypes] = await Promise.all([
-        api.getAllTypes(),
-        handleSelectType("all"),
-      ])
-
-      types.value = [{ name: "all" }, ...loadedTypes]
-    } catch (error) {
-      console.error("Failed initial data load", error)
-    }
-  })
-
-  watch(paginatedList, async (newPokemonList) => {
-    if (newPokemonList.length === 0) {
-      pokemonsOnPage.value = []
-      return
-    }
-
-    try {
-      const detailedPokemons = await Promise.all(
-        newPokemonList.map((p) => api.getPokemonDetails(p.url))
-      )
-      pokemonsOnPage.value = detailedPokemons
-    } catch (error) {
-      console.error("Failed to load pokemon details:", error)
-    }
+    allTypes.value.push(...(await Api.getAllPokemonTypes()))
+    loadPokemons()
   })
 </script>
 
-<style>
+<style scoped>
   .wrapper {
     display: flex;
     flex-direction: column;

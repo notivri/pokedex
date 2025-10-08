@@ -1,12 +1,14 @@
 <template>
   <div class="wrapper">
-    <header>
-      <div class="logo">
-        <div class="circle">
-          <img src="@/app/assets/icons/logo.svg" alt="logo" />
+    <router-link to="/">
+      <header>
+        <div class="logo">
+          <div class="circle">
+            <img src="@/app/assets/icons/logo.svg" alt="logo" />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </router-link>
   </div>
 </template>
 

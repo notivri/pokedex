@@ -5,10 +5,10 @@
         v-for="(type, index) in props.types"
         :key="index"
         :color="typeColors[type.name]"
-        @click="$emit('selectType', type.name)"
         :class="{ inactive: props.selectedType !== type.name }"
+        @click="$emit('selectType', type.name)"
       >
-        {{ type.name.charAt(0).toUpperCase() + type.name.slice(1) }}
+        {{ type.name }}
       </pokeType>
     </div>
   </div>
@@ -24,9 +24,20 @@
 <style scoped>
   .wrapper {
     width: 100%;
+    max-width: 1200px;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  button {
+    all: unset;
+    cursor: pointer;
+    transition: 0.2s ease;
+
+    &:hover {
+      scale: 110%;
+    }
   }
 
   .types {
@@ -36,14 +47,5 @@
     gap: 0.5rem;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     max-width: 100%;
-
-    & .active {
-    }
-  }
-
-  @media (min-width: 1400px) {
-    .types {
-      grid-template-columns: repeat(10, 1fr);
-    }
   }
 </style>

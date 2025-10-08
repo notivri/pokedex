@@ -2,13 +2,13 @@
   <div class="wrapper">
     <div class="gridWrapper">
       <router-link
-        v-for="pokemon in props.pokemons"
+        v-for="pokemon in props.pokemonsOnPage"
         :key="pokemon.id"
         :to="`/pokemon/${pokemon.id}`"
       >
-        <pokeCard v-if="pokemon.color" :color="pokeColors[pokemon.color]">
+        <pokeCard :color="pokeColors[pokemon.species.color.name]">
           <template #name>
-            {{ pokemon.name }}
+            {{ pokemon.name.replace("-", " ") }}
           </template>
 
           <template #id>
@@ -17,20 +17,18 @@
 
           <template #types>
             <pokeType
-              v-for="type in pokemon.types"
-              :key="type.slot"
-              :color="typeColors[type.type.name]"
+              v-for="t in pokemon.types"
+              :key="t.slot"
+              :color="typeColors[t.type.name]"
             >
-              {{
-                type.type.name.charAt(0).toUpperCase() + type.type.name.slice(1)
-              }}
+              {{ t.type.name }}
             </pokeType>
           </template>
 
           <template #image>
             <img
               class="pokemon-image"
-              :src="pokemon.image"
+              :src="pokemon.sprites.other['official-artwork']['front_default']"
               :alt="pokemon.name"
             />
           </template>
@@ -46,7 +44,7 @@
 
   import { pokeColors, typeColors } from "../shared/constants/colors"
 
-  const props = defineProps(["pokemons"])
+  const props = defineProps(["pokemonsOnPage"])
 </script>
 <style scoped>
   .gridWrapper {

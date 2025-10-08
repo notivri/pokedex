@@ -17,6 +17,7 @@
     border-radius: 10rem;
     padding: 0.275rem 1rem;
     color: white;
+    text-transform: capitalize;
 
     &.inactive {
       opacity: 0.3;

@@ -20,7 +20,7 @@ const router = createRouter({
           path: "/pokemon/:id",
           name: "pokemonPage",
           component: () => import("@/pages/pokemonPage.vue"),
-          meta: { showHeader: false },
+          meta: { showHeader: true },
         },
       ],
     },
