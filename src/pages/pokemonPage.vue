@@ -12,6 +12,8 @@
   import { useRoute, onBeforeRouteUpdate } from "vue-router"
   import { getIdFromUrl, getEvolutionIds } from "../shared/lib/pokemon"
 
+  const MAX_ID = 151
+
   const router = useRoute()
   const pokemonId = ref(router.params.id)
 
@@ -30,7 +32,9 @@
 
       if (chainId) {
         const evolutionChain = await Api.getPokemonEvolution(chainId)
-        const speciesIds = getEvolutionIds(evolutionChain)
+        const speciesIds = getEvolutionIds(evolutionChain).filter(
+          (id) => id <= MAX_ID
+        )
         const evoDetails = await Promise.all(
           speciesIds.map((id) => Api.getPokemon(id))
         )
