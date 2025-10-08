@@ -2,89 +2,78 @@
   <main>
     <div class="wrapper">
       <typeSelector :types :selectedType @select-type="handleSelectType" />
-      <pokemonGrid :pokemons="paginatedPokemons" />
+      <pokemonGrid :pokemons="pokemonsOnPage" />
     </div>
   </main>
 </template>
 
 <script setup>
+  import { ref, computed, onMounted, watch } from "vue"
   import api from "../entites/pokemon/api/api.js"
-
   import pokemonGrid from "../widgets/pokemonGrid.vue"
   import typeSelector from "../widgets/typeSelector.vue"
 
-  import { getIdFromURL, normalisePokemons } from "../shared/utils/utils.js"
-  import { ref, computed, watch, onMounted } from "vue"
+  const MAX_ITEMS_PER_PAGE = 21
 
-  const pokemons = ref([])
+  const pokemonList = ref([])
+  const pokemonsOnPage = ref([])
+  const types = ref([])
   const selectedType = ref("all")
   const currentPage = ref(1)
 
-  const maxItems = 21
-  // const lastPage = computed(() =>
-  //   Math.ceil(pokemons.value.length / maxItems)
-  // )
+  const paginatedList = computed(() => {
+    const start = (currentPage.value - 1) * MAX_ITEMS_PER_PAGE
+    const end = start + MAX_ITEMS_PER_PAGE
 
-  const start = computed(() => {
-    return (currentPage.value - 1) * maxItems
+    return pokemonList.value.slice(start, end)
   })
 
-  const end = computed(() => {
-    return start.value + maxItems
-  })
-
-  const paginatedPokemons = computed(() => {
-    return pokemons.value.slice(start.value, end.value)
-  })
-
-  const types = [
-    { name: "all" },
-    ...(await api.getResultsFrom("/type", { limit: 10000 })),
-  ]
+  const loadPokemonList = async (listPromise) => {
+    try {
+      pokemonList.value = await listPromise
+    } catch (error) {
+      console.error("Failed to load pokemon list:", error)
+      pokemonList.value = []
+    }
+  }
 
   const handleSelectType = async (type) => {
     selectedType.value = type
     currentPage.value = 1
 
     if (type === "all") {
-      const rawPokemons = await api.getResultsFrom("/pokemon", { limit: 21 })
-      const idPokemons = getIdFromURL(rawPokemons)
+      await loadPokemonList(api.getPokemons(151))
+    } else {
+      await loadPokemonList(api.getPokemonsByType(type))
+    }
+  }
 
-      pokemons.value = idPokemons
+  onMounted(async () => {
+    try {
+      const [loadedTypes] = await Promise.all([
+        api.getAllTypes(),
+        handleSelectType("all"),
+      ])
 
+      types.value = [{ name: "all" }, ...loadedTypes]
+    } catch (error) {
+      console.error("Failed initial data load", error)
+    }
+  })
+
+  watch(paginatedList, async (newPokemonList) => {
+    if (newPokemonList.length === 0) {
+      pokemonsOnPage.value = []
       return
     }
 
-    const typesData = await api.getDataFrom(`/type/${type}`)
-    const typedPokemons = typesData.pokemon
-    const normalisedPokemons = normalisePokemons(typedPokemons)
-    const idPokemons = getIdFromURL(normalisedPokemons)
-
-    pokemons.value = idPokemons
-  }
-
-  watch(pokemons, () => {
-    pokemons.value.forEach(async (pokemon) => {
-      const data = await api.getDataFrom(`/pokemon/${pokemon.id}`)
-
-      if (!data) return
-
-      const speciesUrl = data.species.url
-
-      const species = await api.getDataFrom(speciesUrl)
-
-      pokemon.image = data.sprites.other["official-artwork"]["front_default"]
-      pokemon.types = data.types
-      pokemon.color = species.color.name
-    })
-  })
-
-  onMounted(async () => {
-    if (pokemons.value.length === 0) {
-      const rawPokemons = await api.getResultsFrom("/pokemon", { limit: 21 })
-      const idPokemons = getIdFromURL(rawPokemons)
-
-      pokemons.value = idPokemons
+    try {
+      const detailedPokemons = await Promise.all(
+        newPokemonList.map((p) => api.getPokemonDetails(p.url))
+      )
+      pokemonsOnPage.value = detailedPokemons
+    } catch (error) {
+      console.error("Failed to load pokemon details:", error)
     }
   })
 </script>

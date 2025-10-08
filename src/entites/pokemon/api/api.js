@@ -1,51 +1,65 @@
-const API_URL = "https://pokeapi.co/api/v2"
+const API_URL = "https://pokeapi.co/api/v2/"
 
 class Api {
   constructor(baseUrl = API_URL) {
-    this.baseUrl = baseUrl
+    this.baseUrl = new URL(baseUrl)
   }
 
-  async _fetch(pathOrUrl) {
-    const isFullUrl = pathOrUrl.startsWith("http")
-    const url = isFullUrl ? pathOrUrl : this.baseUrl + pathOrUrl
+  async _fetch(path, params = {}) {
+    const url = new URL(path, this.baseUrl)
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, value)
+    })
 
     try {
-      const response = await fetch(url)
+      const response = await fetch(url.href)
 
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`)
       }
 
       return await response.json()
-    } catch (err) {
-      console.error(`API ERROR for URL: ${url}`, err)
-      return null
+    } catch (error) {
+      console.error(`API ERROR for URL: ${url.href}`, error)
+
+      throw error
     }
   }
 
-  async getDataFrom(path, id = "") {
-    if (path.startsWith("http")) {
-      return await this._fetch(path)
-    }
+  async getAllTypes() {
+    const data = await this._fetch("type", { limit: 10000 })
 
-    const normalizedPath = path.endsWith("/") ? path.slice(0, -1) : path
-    const fullPath = id ? `${normalizedPath}/${id}` : normalizedPath
-
-    return await this._fetch(fullPath)
+    return data.results
   }
 
-  async getResultsFrom(url, query = {}) {
-    const stringifiedQuery = Object.entries(query)
-      .map(([param, value]) => `${param}=${value}`)
-      .join("&")
+  async getPokemons(limit = 21, offset = 0) {
+    const data = await this._fetch("pokemon", { limit, offset })
 
-    const fullPath = `${url}?${stringifiedQuery}`
+    return data.results
+  }
 
-    const data = await this._fetch(fullPath)
+  async getPokemonsByType(typeName) {
+    const data = await this._fetch(`type/${typeName}`)
 
-    return data?.results ?? data
+    return data.pokemon.map((p) => p.pokemon)
+  }
+
+  async getPokemonDetails(urlOrId) {
+    const path = urlOrId.startsWith("http")
+      ? new URL(urlOrId).pathname
+      : `pokemon/${urlOrId}`
+
+    const data = await this._fetch(path)
+    const speciesData = await this._fetch(data.species.url)
+
+    return {
+      id: data.id,
+      name: data.name,
+      image: data.sprites.other["official-artwork"]["front_default"],
+      types: data.types,
+      color: speciesData.color.name,
+    }
   }
 }
 
-const api = new Api()
-export default api
+export default new Api()
