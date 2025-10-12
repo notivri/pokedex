@@ -1,78 +1,81 @@
 <template>
-  <main v-if="!loading">
-    <pokeInfo :pokemon-data />
-    <pokeEvolutions :pokemon-data />
-  </main>
+  <div class="wrapper">
+    <div
+      class="sprite-wrapper"
+      :style="{
+        background: `linear-gradient(180deg, ${bgColor} 0%, var(--color-bg-main) 90%)`,
+      }"
+    >
+      <div class="header">
+        <bButton class="no-bg" @click="router.push('/main')">
+          <template #icon>
+            <img src="@\app\assets\icons\arrow.svg" />
+          </template>
+        </bButton>
+
+        <span class="id"> #{{ pokemonId }} </span>
+
+        <bButton class="no-bg">
+          <template #icon>
+            <img src="@\app\assets\icons\heart.svg" />
+          </template>
+        </bButton>
+      </div>
+
+      <img
+        class="sprite"
+        :src="pokemon.sprites['other']['official-artwork']['front_default']"
+      />
+
+      <h1>{{ pokemon.name }}</h1>
+      <h3>{{ pokemon?.species.genera[7].genus }}</h3>
+    </div>
+
+    <bNavBar :tabs />
+
+    <router-view :pokemon="pokemon" />
+  </div>
 </template>
 
 <script setup>
-  import pokeInfo from "../widgets/pokeInfo.vue"
-  import pokeEvolutions from "../widgets/pokeEvolutions.vue"
-  import Api from "../entites/pokemon"
-  import { useRoute, onBeforeRouteUpdate } from "vue-router"
-  import { getIdFromUrl, getEvolutionIds } from "../shared/lib/pokemon"
+  import bButton from "@/shared/ui/bButton.vue"
+  import bNavBar from "@/shared/ui/bNavBar.vue"
 
-  const MAX_ID = 151
+  import { useRoute, useRouter } from "vue-router"
+  import { usePokemon } from "@/entites/pokemon/model/usePokemon"
+  import { colors } from "@/entites/pokemon/lib/constants"
 
-  const router = useRoute()
-  const pokemonId = ref(router.params.id)
+  const { getSinglePokemon } = usePokemon()
 
-  const loading = ref(true)
-  const pokemonData = ref(null)
+  const route = useRoute()
+  const router = useRouter()
 
-  async function loadPokemon() {
-    loading.value = true
+  const pokemon = await getSinglePokemon(route.params.id)
 
-    try {
-      const data = await Api.getPokemon(pokemonId.value)
-      const species = await Api.getPokemonSpecies(pokemonId.value)
+  const tabs = ["about", "stats", "moves", "evolutions"]
 
-      let evolutionsPrepared = []
-      const chainId = getIdFromUrl(species.evolution_chain.url)
-
-      if (chainId) {
-        const evolutionChain = await Api.getPokemonEvolution(chainId)
-        const speciesIds = getEvolutionIds(evolutionChain).filter(
-          (id) => id <= MAX_ID
-        )
-        const evoDetails = await Promise.all(
-          speciesIds.map((id) => Api.getPokemon(id))
-        )
-
-        evolutionsPrepared = evoDetails.map((detail) => ({
-          id: detail.id,
-          name: detail.name,
-          image: detail.sprites["front_default"],
-        }))
-      }
-
-      pokemonData.value = {
-        ...data,
-        species,
-        evolutions: evolutionsPrepared,
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      loading.value = false
-    }
-  }
-
-  onMounted(() => {
-    loadPokemon()
+  const bgColor = computed(() => {
+    return colors[pokemon.types["0"].type.name]
   })
 
-  onBeforeRouteUpdate((to) => {
-    pokemonId.value = to.params.id
-    loadPokemon()
+  const pokemonId = computed(() => {
+    return String(pokemon.id).padStart(3, "0")
   })
 </script>
 
 <style scoped>
-  main {
+  .header {
     display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sprite-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    align-items: start;
-    gap: 1rem;
+    text-transform: capitalize;
   }
 </style>

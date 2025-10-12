@@ -1,0 +1,31 @@
+export const colors = {
+  grass: "#74CB48",
+  poison: "#A43E9E",
+  fire: "#F57D31",
+  flying: "#A891EC",
+  water: "#6493EB",
+  normal: "#AAA67F",
+  fighting: "#C12239",
+  rock: "#655B2F",
+  ground: "#B29D5E",
+  bug: "#A7B723",
+  ghost: "#70559B",
+  electric: "#EFC31E",
+  psychic: "#FB5584",
+  ice: "#55E7FD",
+  dragon: "#7037FF",
+  dark: "#2F1911",
+  fairy: "#FF62DC",
+  stellar: null,
+  steel: null,
+  legendary: null,
+}
+
+export const maxPossibleStats = {
+  hp: 255,
+  attack: 190,
+  defense: 250,
+  "special-attack": 194,
+  "special-defense": 250,
+  speed: 200,
+}

@@ -1,17 +1,11 @@
 <template>
-  <mainHeader v-if="$route.meta.showHeader" />
-
-  <div>
+  <main>
     <router-view v-slot="{ Component }">
       <template v-if="Component">
         <Suspense>
-          <component :is="Component"></component>
+          <component :is="Component" />
         </Suspense>
       </template>
     </router-view>
-  </div>
+  </main>
 </template>
-
-<script setup>
-  import mainHeader from "/src/widgets/mainHeader.vue"
-</script>

@@ -1,7 +1,26 @@
+:root {
+  --color-primary: #ffcb05;
+  --color-primary-dark: #e0b404;
+
+  --color-secondary: #2f394b;
+  --color-secondary-light: #8a9ab9;
+
+  --color-bg-main: #ffffff;
+  --color-bg-alt: #f2f3f7;
+
+  --color-text-primary: #2f394b;
+  --color-text-secondary: #506080;
+  --color-text-inverse: #ffffff;
+
+  --color-border: #dfe4ed;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
 body {
-  font-family: "inglobal";
+  font-family: "Roboto Condensed", sans-serif;
   font-size: 16pt;
-  color: #1e1d1d;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-main);
 }
 
 h1 {
@@ -14,18 +33,13 @@ h2 {
 
 h3 {
   font-size: 12pt;
+  color: var(--color-secondary-light);
 }
 
 p {
-  font-size: 12pt;
-  color: #575757;
+  font-size: 9pt;
 }
 
 a {
-  color: initial;
-  text-decoration: none;
-}
-
-button {
   all: unset;
 }

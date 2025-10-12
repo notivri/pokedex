@@ -1,85 +1,67 @@
 <template>
-  <main>
-    <div class="wrapper">
-      <typeSelector
-        :types="allTypes"
-        :selectedType
-        @select-type="handleSelectType"
-      />
-      <pokemonGrid :pokemonsOnPage />
+  <div class="wrapper">
+    <div class="text">
+      <h1>Pokedex</h1>
+      <h3>
+        Use the advanced search to find Pokemon by type, weakness, ability and
+        more!
+      </h3>
     </div>
-  </main>
+
+    <searchBar placeholder="Search a pokemon" />
+
+    <pokeGrid :pokemons="detailedPokemons" />
+
+    <div ref="loadMoreTrigger" />
+  </div>
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue"
-  import pokemonGrid from "../widgets/pokemonGrid.vue"
-  import typeSelector from "../widgets/typeSelector.vue"
-  import Api from "../entites/pokemon"
-  import { getIdFromUrl } from "../shared/lib/pokemon"
+  import searchBar from "@/widgets/searchBar.vue"
+  import pokeGrid from "@/widgets/pokeGrid.vue"
+  import { usePokemon } from "@/entites/pokemon/model/usePokemon"
 
-  const MAX_ID = 151
+  const { detailedPokemons, loadMore } = usePokemon()
 
-  const pokemonsOnPage = ref([])
-  const allTypes = ref([{ name: "all" }])
-  const selectedType = ref("all")
+  const loadMoreTrigger = ref(null)
 
-  const loading = ref(false)
+  let observer = null
 
-  function handleSelectType(typeName) {
-    if (selectedType.value == typeName) return
+  const setupIntersectionObserver = () => {
+    if (!loadMoreTrigger.value) return
 
-    selectedType.value = typeName
-    pokemonsOnPage.value = []
-    loadPokemons()
-  }
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadMore()
+        }
+      },
+      { root: null, threshold: 1.0 }
+    )
 
-  async function loadPokemons() {
-    loading.value = true
-
-    try {
-      let pokemonList = null
-
-      if (selectedType.value === "all") {
-        const data = await Api.getAllPokemons()
-        pokemonList = data
-      } else {
-        const data = await Api.getTypeInfo(selectedType.value)
-        pokemonList = data.pokemon.map((p) => p.pokemon)
-      }
-
-      const detailedPokemons = await Promise.all(
-        pokemonList
-          .filter((pokemon) => getIdFromUrl(pokemon.url) <= MAX_ID)
-          .map(async (pokemon) => {
-            const pokemonName = pokemon?.name ?? pokemon.pokemon.name
-
-            const details = await Api.getPokemon(pokemonName)
-            const species = await Api.getPokemonSpecies(pokemonName)
-            return { ...details, species }
-          })
-      )
-
-      pokemonsOnPage.value = detailedPokemons
-    } catch (err) {
-      console.error(err)
-    } finally {
-      loading.value = false
-    }
+    observer.observe(loadMoreTrigger.value)
   }
 
   onMounted(async () => {
-    allTypes.value.push(...(await Api.getAllPokemonTypes()))
-    loadPokemons()
+    setupIntersectionObserver()
+  })
+
+  onUnmounted(() => {
+    observer?.disconnect()
   })
 </script>
 
 <style scoped>
   .wrapper {
+    margin: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5rem;
+    gap: 1.5rem;
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 </style>
