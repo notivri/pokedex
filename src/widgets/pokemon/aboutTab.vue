@@ -35,6 +35,7 @@
             {{ a.ability.name }}
           </h3>
         </span>
+
         <p>Abilities</p>
       </div>
     </bCard>

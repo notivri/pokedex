@@ -23,7 +23,7 @@
       </div>
 
       <img
-        class="sprite"
+        class="image"
         :src="pokemon.sprites['other']['official-artwork']['front_default']"
       />
 
@@ -79,5 +79,10 @@
     align-items: center;
     justify-content: center;
     text-transform: capitalize;
+  }
+
+  .image {
+    width: 20rem;
+    height: 20rem;
   }
 </style>
