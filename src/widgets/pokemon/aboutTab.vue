@@ -76,7 +76,6 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin: 1rem;
   }
 
   .container {
