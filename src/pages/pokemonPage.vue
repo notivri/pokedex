@@ -47,12 +47,12 @@
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { colors } from "@/entites/pokemon/lib/constants"
 
-  const { getSinglePokemon } = usePokemon()
+  const { getPokemonDetails } = usePokemon()
 
   const route = useRoute()
   const router = useRouter()
 
-  const pokemon = await getSinglePokemon(route.params.id)
+  const pokemon = await getPokemonDetails(route.params.id)
 
   const tabs = ["about", "stats", "moves", "evolutions"]
 

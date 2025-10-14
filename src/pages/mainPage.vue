@@ -10,7 +10,7 @@
 
     <searchBar placeholder="Search a pokemon" />
 
-    <pokeGrid :pokemons="detailedPokemons" />
+    <pokeGrid :pokemons="displayedPokemons" />
 
     <div ref="loadMoreTrigger" />
   </div>
@@ -21,11 +21,43 @@
   import pokeGrid from "@/widgets/pokeGrid.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
 
-  const { detailedPokemons, loadMore } = usePokemon()
+  const { allPokemons, getPokemonDetails, fetchAllPokemonsList } = usePokemon()
 
+  const limit = ref(20)
+  const offset = ref(0)
   const loadMoreTrigger = ref(null)
+  const displayedPokemons = ref([])
 
   let observer = null
+
+  async function loadMore() {
+    if (!allPokemons.value.length) {
+      await fetchAllPokemonsList()
+    }
+
+    const nextSlice = allPokemons.value.slice(
+      offset.value,
+      offset.value + limit.value
+    )
+    if (!nextSlice.length) return
+
+    const skeletons = nextSlice.map((p) => ({
+      ...p,
+      isLoaded: false,
+    }))
+    displayedPokemons.value.push(...skeletons)
+
+    const loadedData = await Promise.all(
+      nextSlice.map(async (p) => {
+        const data = await getPokemonDetails(p.name)
+        return { ...p, ...data, isLoaded: true }
+      })
+    )
+
+    displayedPokemons.value.splice(offset.value, limit.value, ...loadedData)
+
+    offset.value += limit.value
+  }
 
   const setupIntersectionObserver = () => {
     if (!loadMoreTrigger.value) return
@@ -43,6 +75,8 @@
   }
 
   onMounted(async () => {
+    await fetchAllPokemonsList()
+    await loadMore()
     setupIntersectionObserver()
   })
 
