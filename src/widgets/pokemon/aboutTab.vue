@@ -108,6 +108,6 @@
   }
 
   p {
-    color: var(--color-secondary-light);
+    color: var(--color-text-secondary);
   }
 </style>

@@ -3,13 +3,13 @@
   --color-primary-dark: #e0b404;
 
   --color-secondary: #2f394b;
-  --color-secondary-light: #8a9ab9;
+  --color-secondary-light: #dfe4ec;
 
   --color-bg-main: #ffffff;
   --color-bg-alt: #f2f3f7;
 
   --color-text-primary: #2f394b;
-  --color-text-secondary: #506080;
+  --color-text-secondary: #a9b5ca;
   --color-text-inverse: #ffffff;
 
   --color-border: #dfe4ed;
@@ -33,7 +33,7 @@ h2 {
 
 h3 {
   font-size: 12pt;
-  color: var(--color-secondary-light);
+  color: var(--color-text-secondary);
 }
 
 p {

@@ -31,9 +31,11 @@
       <h3>{{ pokemon?.species.genera[7].genus }}</h3>
     </div>
 
-    <bNavBar :tabs />
+    <div class="tabs-wrapper">
+      <bNavBar :tabs />
 
-    <router-view :pokemon="pokemon" />
+      <router-view :pokemon="pokemon" />
+    </div>
   </div>
 </template>
 

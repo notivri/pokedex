@@ -7,9 +7,7 @@
       class="tab"
       active-class="active"
     >
-      <h3 class="tab-name">
-        {{ tab }}
-      </h3>
+      <h3>{{ tab }}</h3>
     </router-link>
   </nav>
 </template>
@@ -31,20 +29,11 @@
   .tab {
     text-transform: capitalize;
     padding: 0.5rem;
-    filter: opacity(60%);
     transition: 0.2s ease;
     cursor: pointer;
 
-    &.active {
-      filter: opacity(100%);
-
-      h3 {
-        color: black;
-      }
+    &.active h3 {
+      color: var(--color-text-primary);
     }
-  }
-
-  h3 {
-    color: var(--color-text-secondary);
   }
 </style>
