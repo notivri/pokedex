@@ -6,6 +6,7 @@ const allPokemons = ref([])
 const cache = {
   pokemon: new Map(),
   species: new Map(),
+  evolution_chain: new Map(),
 }
 
 async function getPokemon(name) {
@@ -18,13 +19,23 @@ async function getPokemon(name) {
   return data
 }
 
-async function getPokemonSpecies(url) {
-  if (cache.species.has(url)) {
-    return cache.species.get(url)
+async function getPokemonSpecies(name) {
+  if (cache.species.has(name)) {
+    return cache.species.get(name)
   }
 
-  const data = await api.fetchPokemonSpecies(url)
-  cache.species.set(url, data)
+  const data = await api.fetchPokemonSpecies(name)
+  cache.species.set(name, data)
+  return data
+}
+
+async function getPokemonEvolutionChain(url) {
+  if (cache.evolution_chain.has(url)) {
+    return cache.evolution_chain.get(url)
+  }
+
+  const data = await api.fetchPokemonEvolutionChain(url)
+  cache.evolution_chain.set(url, data)
   return data
 }
 
@@ -40,6 +51,7 @@ export function usePokemon() {
     allPokemons,
     getPokemon,
     getPokemonSpecies,
+    getPokemonEvolutionChain,
     getAllPokemonsList,
   }
 }

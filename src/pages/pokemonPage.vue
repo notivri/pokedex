@@ -47,15 +47,22 @@
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { colors } from "@/entites/pokemon/lib/constants"
 
-  const { getPokemon, getPokemonSpecies } = usePokemon()
+  const { getPokemon, getPokemonSpecies, getPokemonEvolutionChain } =
+    usePokemon()
 
   const route = useRoute()
   const router = useRouter()
 
   const pokemon = await getPokemon(route.params.id)
   const species = await getPokemonSpecies(pokemon.id)
+  const evolutionChain = await getPokemonEvolutionChain(
+    species.evolution_chain.url
+  )
 
   pokemon.species = species
+  pokemon.species.evolution_chain = evolutionChain
+
+  console.log(pokemon.species.evolution_chain)
 
   const tabs = ["about", "stats", "moves", "evolutions"]
 

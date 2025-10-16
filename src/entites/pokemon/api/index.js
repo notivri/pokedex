@@ -2,16 +2,16 @@ import Api from "@/shared/api/index"
 
 const pokemonApi = new Api(import.meta.env.VITE_API_URL)
 
-async function fetchPokemon(idOrName) {
-  return await pokemonApi.get(`pokemon/${idOrName}`)
+async function fetchPokemon(name) {
+  return await pokemonApi.get(`pokemon/${name}`)
 }
 
-async function fetchPokemonSpecies(url) {
-  return await pokemonApi.get(`pokemon-species/${url}`)
+async function fetchPokemonSpecies(name) {
+  return await pokemonApi.get(`pokemon-species/${name}`)
 }
 
-async function fetchPokemonEvolution(id) {
-  const response = await pokemonApi.get(`evolution-chain/${id}`)
+async function fetchPokemonEvolutionChain(url) {
+  const response = await pokemonApi.get(url)
   return response.chain
 }
 
@@ -23,6 +23,6 @@ async function fetchAllPokemons() {
 export {
   fetchPokemon,
   fetchPokemonSpecies,
-  fetchPokemonEvolution,
+  fetchPokemonEvolutionChain,
   fetchAllPokemons,
 }
