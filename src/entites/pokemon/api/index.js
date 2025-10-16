@@ -1,33 +1,28 @@
-import api from "@/shared/api/index"
+import Api from "@/shared/api/index"
 
-export async function getPokemon(idOrName) {
-  return api.get(`pokemon/${idOrName}`)
+const pokemonApi = new Api(import.meta.env.VITE_API_URL)
+
+async function fetchPokemon(idOrName) {
+  return await pokemonApi.get(`pokemon/${idOrName}`)
 }
 
-export async function getPokemonSpecies(idOrName) {
-  return api.get(`pokemon-species/${idOrName}`)
+async function fetchPokemonSpecies(url) {
+  return await pokemonApi.get(`pokemon-species/${url}`)
 }
 
-export async function getPokemonEvolution(id) {
-  const response = await api.get(`evolution-chain/${id}`)
+async function fetchPokemonEvolution(id) {
+  const response = await pokemonApi.get(`evolution-chain/${id}`)
   return response.chain
 }
 
-export async function getTypeInfo(typeName) {
-  return api.get(`type/${typeName}`)
-}
-
-export async function getAllPokemons() {
-  const response = await api.get("pokemon", { limit: 150 })
+async function fetchAllPokemons() {
+  const response = await pokemonApi.get("pokemon", { limit: 150 })
   return response.results
 }
 
-export async function getAllPokemonTypes() {
-  const response = await api.get("type", { limit: 1000 })
-  return response.results
-}
-
-export async function getDataFromURL(url) {
-  const response = await api.get(url)
-  return response?.results ?? response
+export {
+  fetchPokemon,
+  fetchPokemonSpecies,
+  fetchPokemonEvolution,
+  fetchAllPokemons,
 }

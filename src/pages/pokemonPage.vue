@@ -24,17 +24,17 @@
 
       <img
         class="image"
-        :src="pokemon.sprites['other']['official-artwork']['front_default']"
+        :src="pokemon?.sprites['other']['official-artwork']['front_default']"
       />
 
-      <h1>{{ pokemon.name }}</h1>
+      <h1>{{ pokemon?.name }}</h1>
       <h3>{{ pokemon?.species.genera[7].genus }}</h3>
     </div>
 
     <bNavBar :tabs />
 
-    <div class="tabs-wrapper">
-      <router-view :pokemon="pokemon" />
+    <div v-if="pokemon" class="tabs-wrapper">
+      <router-view :pokemon />
     </div>
   </div>
 </template>
@@ -47,21 +47,24 @@
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { colors } from "@/entites/pokemon/lib/constants"
 
-  const { getPokemonDetails } = usePokemon()
+  const { getPokemon, getPokemonSpecies } = usePokemon()
 
   const route = useRoute()
   const router = useRouter()
 
-  const pokemon = await getPokemonDetails(route.params.id)
+  const pokemon = await getPokemon(route.params.id)
+  const species = await getPokemonSpecies(pokemon.id)
+
+  pokemon.species = species
 
   const tabs = ["about", "stats", "moves", "evolutions"]
 
   const bgColor = computed(() => {
-    return colors[pokemon.types["0"].type.name]
+    return colors[pokemon?.types["0"].type.name]
   })
 
   const pokemonId = computed(() => {
-    return String(pokemon.id).padStart(3, "0")
+    return String(pokemon?.id).padStart(3, "0")
   })
 </script>
 

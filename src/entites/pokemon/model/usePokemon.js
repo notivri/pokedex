@@ -1,44 +1,45 @@
+import { ref } from "vue"
 import * as api from "../api/index"
 
 const allPokemons = ref([])
-const cachedPokemons = reactive({})
 
-async function getPokemonData(name) {
-  if (cachedPokemons[name]) {
-    return cachedPokemons[name]
+const cache = {
+  pokemon: new Map(),
+  species: new Map(),
+}
+
+async function getPokemon(name) {
+  if (cache.pokemon.has(name)) {
+    return cache.pokemon.get(name)
   }
 
-  try {
-    const data = await api.getPokemon(name)
+  const data = await api.fetchPokemon(name)
+  cache.pokemon.set(name, data)
+  return data
+}
 
-    cachedPokemons[name] = data
-
-    return data
-  } catch (e) {
-    console.error("Error fetching pokemon details:", e)
-
-    return null
+async function getPokemonSpecies(url) {
+  if (cache.species.has(url)) {
+    return cache.species.get(url)
   }
+
+  const data = await api.fetchPokemonSpecies(url)
+  cache.species.set(url, data)
+  return data
 }
 
 async function getAllPokemonsList() {
   if (allPokemons.value.length) return
 
-  try {
-    const list = await api.getAllPokemons()
-
-    allPokemons.value = list
-  } catch (e) {
-    console.error("Error fetching all pokemon list:", e)
-    return null
-  }
+  const list = await api.fetchAllPokemons()
+  allPokemons.value = list
 }
 
 export function usePokemon() {
   return {
     allPokemons,
-    cachedPokemons,
-    getPokemonData,
+    getPokemon,
+    getPokemonSpecies,
     getAllPokemonsList,
   }
 }

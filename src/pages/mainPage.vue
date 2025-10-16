@@ -21,15 +21,13 @@
   import pokemonSearchGrid from "@/widgets/pokemonSearchGrid.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
 
-  const { allPokemons, getPokemonData, getAllPokemonsList } = usePokemon()
+  const { allPokemons, getPokemon, getAllPokemonsList } = usePokemon()
 
   const limit = ref(20)
   const offset = ref(0)
   const displayedPokemons = ref([])
 
-  const loadMoreTrigger = useTemplateRef(null)
-
-  console.log(displayedPokemons.value)
+  const loadMoreTrigger = ref(null)
 
   let observer = null
 
@@ -46,7 +44,7 @@
 
     const pokemonsData = await Promise.all(
       nextSlice.map(async (p) => {
-        const data = await getPokemonData(p.name)
+        const data = await getPokemon(p.name)
 
         return data
       })

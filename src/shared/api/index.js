@@ -1,14 +1,10 @@
-const API_URL = "https://pokeapi.co/api/v2/"
-
 class Api {
   constructor(baseUrl) {
-    this.baseUrl = new URL(baseUrl)
+    this.baseUrl = baseUrl
   }
 
   async get(path, params = {}) {
-    const url = path.startsWith("http")
-      ? new URL(path)
-      : new URL(path, this.baseUrl)
+    const url = new URL(path, this.baseUrl)
 
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value)
@@ -29,4 +25,4 @@ class Api {
   }
 }
 
-export default new Api(API_URL)
+export default Api
