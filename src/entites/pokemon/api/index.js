@@ -10,13 +10,13 @@ async function fetchPokemonSpecies(name) {
   return await pokemonApi.get(`pokemon-species/${name}`)
 }
 
-async function fetchPokemonEvolutionChain(url) {
-  const response = await pokemonApi.get(url)
+async function fetchPokemonEvolutionChain(id) {
+  const response = await pokemonApi.get(`evolution-chain/${id}`)
   return response.chain
 }
 
 async function fetchAllPokemons() {
-  const response = await pokemonApi.get("pokemon", { limit: 150 })
+  const response = await pokemonApi.get("pokemon", { limit: 10000 })
   return response.results
 }
 

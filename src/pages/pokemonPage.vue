@@ -56,13 +56,10 @@
   const pokemon = await getPokemon(route.params.id)
   const species = await getPokemonSpecies(pokemon.id)
   const evolutionChain = await getPokemonEvolutionChain(
-    species.evolution_chain.url
+    species.evolution_chain?.url
   )
 
-  pokemon.species = species
-  pokemon.species.evolution_chain = evolutionChain
-
-  console.log(pokemon.species.evolution_chain)
+  pokemon.species = { ...species, evolution_chain: evolutionChain }
 
   const tabs = ["about", "stats", "moves", "evolutions"]
 

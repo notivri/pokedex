@@ -1,5 +1,5 @@
-import { ref } from "vue"
 import * as api from "../api/index"
+import { getIdFromUrl } from "../lib/utils"
 
 const allPokemons = ref([])
 
@@ -30,12 +30,14 @@ async function getPokemonSpecies(name) {
 }
 
 async function getPokemonEvolutionChain(url) {
-  if (cache.evolution_chain.has(url)) {
-    return cache.evolution_chain.get(url)
+  const id = getIdFromUrl(url)
+
+  if (cache.evolution_chain.has(id)) {
+    return cache.evolution_chain.get(id)
   }
 
-  const data = await api.fetchPokemonEvolutionChain(url)
-  cache.evolution_chain.set(url, data)
+  const data = await api.fetchPokemonEvolutionChain(id)
+  cache.evolution_chain.set(id, data)
   return data
 }
 
