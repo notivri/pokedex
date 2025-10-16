@@ -8,7 +8,10 @@
       </h3>
     </div>
 
-    <pokemonSearchGrid :pokemons="displayedPokemons" />
+    <pokemonSearchGrid
+      v-if="displayedPokemons.length"
+      :pokemons="displayedPokemons"
+    />
 
     <div ref="loadMoreTrigger" />
   </div>
@@ -18,18 +21,21 @@
   import pokemonSearchGrid from "@/widgets/pokemonSearchGrid.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
 
-  const { allPokemons, getPokemonDetails, fetchAllPokemonsList } = usePokemon()
+  const { allPokemons, getPokemonData, getAllPokemonsList } = usePokemon()
 
   const limit = ref(20)
   const offset = ref(0)
-  const loadMoreTrigger = ref(null)
   const displayedPokemons = ref([])
+
+  const loadMoreTrigger = useTemplateRef(null)
+
+  console.log(displayedPokemons.value)
 
   let observer = null
 
   async function loadMore() {
     if (!allPokemons.value.length) {
-      await fetchAllPokemonsList()
+      await getAllPokemonsList()
     }
 
     const nextSlice = allPokemons.value.slice(
@@ -38,20 +44,15 @@
     )
     if (!nextSlice.length) return
 
-    const skeletons = nextSlice.map((p) => ({
-      ...p,
-      isLoaded: false,
-    }))
-    displayedPokemons.value.push(...skeletons)
-
-    const loadedData = await Promise.all(
+    const pokemonsData = await Promise.all(
       nextSlice.map(async (p) => {
-        const data = await getPokemonDetails(p.name)
-        return { ...p, ...data, isLoaded: true }
+        const data = await getPokemonData(p.name)
+
+        return data
       })
     )
 
-    displayedPokemons.value.splice(offset.value, limit.value, ...loadedData)
+    displayedPokemons.value.push(...pokemonsData)
 
     offset.value += limit.value
   }
@@ -72,7 +73,7 @@
   }
 
   onMounted(async () => {
-    await fetchAllPokemonsList()
+    await getAllPokemonsList()
     await loadMore()
     setupIntersectionObserver()
   })

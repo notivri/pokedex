@@ -1,39 +1,31 @@
 <template>
   <div
     class="card-wrapper"
-    :class="{ skeleton: !isReady }"
-    :style="{ 'background-color': isReady ? bgColor : '' }"
+    :style="{ 'background-color': bgColor }"
     @click="emit('click')"
   >
-    <template v-if="isReady">
-      <div class="name-wrapper">
-        <p class="name">
-          {{ pokemon.name }}
-        </p>
-        <p class="id">
-          {{ formattedId }}
-        </p>
+    <div class="name-wrapper">
+      <p class="name">
+        {{ pokemon.name }}
+      </p>
+      <p class="id">
+        {{ formattedId }}
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="types-wrapper">
+        <pokemonType
+          v-for="(t, index) in props.pokemon.types"
+          :key="index"
+          :type="t.type.name"
+        />
       </div>
+    </div>
 
-      <div class="container">
-        <div class="types-wrapper">
-          <pokemonType
-            v-for="(t, index) in types"
-            :key="index"
-            :type="t.type.name"
-          />
-        </div>
-      </div>
+    <img id="pokeball" src="@/app/assets/icons/pokeball.svg" />
 
-      <img id="pokeball" src="@/app/assets/icons/pokeball.svg" />
-    </template>
-
-    <img
-      v-if="spriteSrc"
-      class="image"
-      :src="spriteSrc"
-      @load="handleImageLoad"
-    />
+    <img class="image" :src="spriteSrc" />
   </div>
 </template>
 
@@ -42,17 +34,14 @@
   import { colors } from "@/entites/pokemon/lib/constants"
 
   const props = defineProps({
-    pokemon: { type: Object },
+    pokemon: Object,
   })
 
   const emit = defineEmits(["click"])
 
-  const isImageLoaded = ref(false)
-
-  const isReady = computed(() => props.pokemon?.isLoaded && isImageLoaded.value)
-
   const bgColor = computed(() => {
-    const colorName = props.pokemon.types["0"].type.name
+    const colorName = props?.pokemon?.types?.["0"].type.name
+
     return colors[colorName]
   })
 
@@ -63,12 +52,6 @@
   const spriteSrc = computed(() => {
     return props.pokemon?.sprites?.front_default
   })
-
-  const types = computed(() => props.pokemon?.types)
-
-  function handleImageLoad() {
-    isImageLoaded.value = true
-  }
 </script>
 
 <style scoped>
@@ -128,24 +111,7 @@
     align-items: center;
   }
 
-  .skeleton {
-    background: #c2c2c2;
-    animation: pulse 2s infinite;
-  }
-
   p {
     color: var(--color-text-inverse);
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.55;
-    }
-    100% {
-      opacity: 1;
-    }
   }
 </style>

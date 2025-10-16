@@ -9,12 +9,12 @@
       </bButton>
     </div>
 
-    <div v-if="props.pokemons?.length" class="grid-wrapper">
+    <div class="grid-wrapper">
       <pokeCard
         v-for="pokemon in props.pokemons"
         :key="pokemon.id"
         :pokemon="pokemon"
-        @click="onCardClick(pokemon)"
+        @click="handleCardClick(pokemon)"
       />
     </div>
   </div>
@@ -28,29 +28,27 @@
 
   import { useRouter } from "vue-router"
 
-  const router = useRouter()
-
   const props = defineProps({
-    pokemons: { type: Array, default: () => [] },
+    pokemons: Array,
     modelValue: String,
   })
 
   const emit = defineEmits(["update:modelValue"])
 
-  function onCardClick(pokemon) {
-    if (pokemon?.isLoaded) {
-      router.push({ name: "pokemonPage", params: { id: pokemon.id } })
-    }
-  }
-
   const model = computed({
     get: () => props.modelValue,
     set: (value) => emit("update:modelValue", value),
   })
+
+  const router = useRouter()
+
+  function handleCardClick(pokemon) {
+    router.push({ name: "pokemonPage", params: { id: pokemon.id } })
+  }
 </script>
 
 <style scoped>
-  .widget-wrapper{
+  .widget-wrapper {
     display: flex;
     flex-direction: column;
     gap: 1rem;
