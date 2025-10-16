@@ -43,22 +43,22 @@ const router = createRouter({
             {
               path: "about",
               name: "pokemonAbout",
-              component: () => import("@/widgets/pokemon/aboutTab.vue"),
+              component: () => import("@/widgets/pokemonTabs/aboutTab.vue"),
             },
             {
               path: "stats",
               name: "pokemonStats",
-              component: () => import("@/widgets/pokemon/statsTab.vue"),
+              component: () => import("@/widgets/pokemonTabs/statsTab.vue"),
             },
             {
               path: "moves",
               name: "pokemonMoves",
-              component: () => import("@/widgets/pokemon/movesTab.vue"),
+              component: () => import("@/widgets/pokemonTabs/movesTab.vue"),
             },
             {
               path: "evolutions",
               name: "pokemonEvolutions",
-              component: () => import("@/widgets/pokemon/evolutionsTab.vue"),
+              component: () => import("@/widgets/pokemonTabs/evolutionsTab.vue"),
             },
           ],
         },

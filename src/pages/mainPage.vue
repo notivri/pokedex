@@ -8,17 +8,14 @@
       </h3>
     </div>
 
-    <searchBar placeholder="Search a pokemon" />
-
-    <pokeGrid :pokemons="displayedPokemons" />
+    <pokemonSearchGrid :pokemons="displayedPokemons" />
 
     <div ref="loadMoreTrigger" />
   </div>
 </template>
 
 <script setup>
-  import searchBar from "@/widgets/searchBar.vue"
-  import pokeGrid from "@/widgets/pokeGrid.vue"
+  import pokemonSearchGrid from "@/widgets/pokemonSearchGrid.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
 
   const { allPokemons, getPokemonDetails, fetchAllPokemonsList } = usePokemon()
