@@ -1,5 +1,5 @@
 <template>
-  <div class="type-wrapper" :class="{ 'image-focus': focus }">
+  <div class="type-wrapper">
     <div
       class="image-wrapper"
       :style="{
@@ -9,7 +9,7 @@
       <img class="image" :src="pathToIcon" />
     </div>
 
-    <p v-if="!focus">
+    <p>
       {{ props.type }}
     </p>
   </div>
@@ -25,7 +25,6 @@
 
   const props = defineProps({
     type: String,
-    focus: Boolean,
   })
 
   const pathToIcon = computed(
@@ -45,7 +44,7 @@
     gap: 0.2rem;
     transition: all 0.2s;
 
-    & .image-wrapper {
+    .image-wrapper {
       width: 1rem;
       height: 1rem;
       display: flex;
@@ -56,16 +55,30 @@
       transition: all 0.2s;
     }
 
-    & .image {
+    .image {
       width: 100%;
       height: 100%;
     }
 
-    &.image-focus {
+    &.no-bg {
+      background-color: transparent;
+    }
+
+    &.no-text {
       padding: 0;
       gap: 0;
 
-      & .image-wrapper {
+      p {
+        display: none;
+      }
+    }
+
+    &.border {
+      border: 2px solid var(--color-bg-alt);
+    }
+
+    &.big {
+      .image-wrapper {
         width: 1.75rem;
         height: 1.75rem;
       }
@@ -73,6 +86,14 @@
       .image {
         width: 90%;
       }
+    }
+
+    &.text-inverse p {
+      color: var(--color-text-primary);
+    }
+
+    &.bold p {
+      font-weight: bold;
     }
   }
 

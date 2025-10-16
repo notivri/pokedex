@@ -21,7 +21,7 @@
             v-for="t in props.pokemon.types"
             :key="t.type.name"
             :type="t.type.name"
-            :focus="true"
+            class="no-text big"
           />
         </span>
         <span>

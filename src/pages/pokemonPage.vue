@@ -34,7 +34,7 @@
     <bNavBar :tabs />
 
     <div v-if="pokemon" class="tabs-wrapper">
-      <router-view :pokemon />
+      <router-view :pokemon :chain="detailedEvolutionChain" />
     </div>
   </div>
 </template>
@@ -45,6 +45,7 @@
 
   import { useRoute, useRouter } from "vue-router"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
+  import { parseEvolutionChain } from "@/entites/pokemon/lib/utils"
   import { colors } from "@/entites/pokemon/lib/constants"
 
   const { getPokemon, getPokemonSpecies, getPokemonEvolutionChain } =
@@ -58,8 +59,19 @@
   const evolutionChain = await getPokemonEvolutionChain(
     species.evolution_chain?.url
   )
+  const parsedEvolutionChain = parseEvolutionChain(evolutionChain)
+  const detailedEvolutionChain = await Promise.all(
+    parsedEvolutionChain.map(async (evo) => {
+      const evoPokemonData = await getPokemon(evo.id)
+      return {
+        ...evo,
+        image: evoPokemonData.sprites.front_default,
+        types: evoPokemonData.types,
+      }
+    })
+  )
 
-  pokemon.species = { ...species, evolution_chain: evolutionChain }
+  pokemon.species = species
 
   const tabs = ["about", "stats", "moves", "evolutions"]
 
