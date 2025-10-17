@@ -17,24 +17,6 @@ const router = createRouter({
           meta: { showNavigation: true },
         },
         {
-          path: "/comparator",
-          name: "comparatorPage",
-          component: () => import("@/pages/comparatorPage.vue"),
-          meta: { showNavigation: true },
-        },
-        {
-          path: "/quiz",
-          name: "quizPage",
-          component: () => import("@/pages/quizPage.vue"),
-          meta: { showNavigation: true },
-        },
-        {
-          path: "/favorites",
-          name: "favoritesPage",
-          component: () => import("@/pages/favoritesPage.vue"),
-          meta: { showNavigation: true },
-        },
-        {
           path: "/pokemon/:id",
           name: "pokemonPage",
           component: () => import("@/pages/pokemonPage.vue"),

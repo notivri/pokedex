@@ -104,7 +104,7 @@
   })
 
   watchEffect(async () => {
-    const ids = historyStore.pokemonIds
+    const ids = historyStore.getIds()
     if (!ids.length) {
       historyPokemons.value = []
       return
