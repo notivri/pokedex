@@ -95,6 +95,8 @@
 
   const pokemon = await getPokemon(route.params.id)
   const species = await getPokemonSpecies(pokemon.species.name)
+  pokemon.species = species
+
   const evolutionChain = await getPokemonEvolutionChain(
     species.evolution_chain?.url
   )
@@ -109,8 +111,6 @@
       }
     })
   )
-  console.log(evolutionChain)
-  pokemon.species = species
 
   const bgColor = computed(() => {
     return colors[pokemon?.types["0"].type.name]
