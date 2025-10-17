@@ -15,7 +15,7 @@ export const useHistoryStore = defineStore("history", {
 
       this.pokemonIds = this.pokemonIds.filter((id) => id !== pokemonId)
 
-      this.pokemonIds.push(pokemonId)
+      this.pokemonIds.unshift(pokemonId)
 
       if (this.pokemonIds.length > MAX_ITEMS) {
         this.pokemonIds = this.pokemonIds.slice(-MAX_ITEMS)

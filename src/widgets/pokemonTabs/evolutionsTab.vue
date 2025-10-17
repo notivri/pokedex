@@ -31,6 +31,7 @@
 
 <script setup>
   import pokemonType from "@/entites/pokemon/ui/pokemonType.vue"
+
   const props = defineProps({
     chain: Array,
   })

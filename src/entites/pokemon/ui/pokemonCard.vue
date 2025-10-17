@@ -40,9 +40,9 @@
   const emit = defineEmits(["click"])
 
   const bgColor = computed(() => {
-    const colorName = props?.pokemon?.types?.["0"].type.name
+    const firstType = props?.pokemon?.types?.["0"].type.name
 
-    return colors[colorName]
+    return colors[firstType]
   })
 
   const formattedId = computed(() => {
@@ -50,7 +50,10 @@
   })
 
   const spriteSrc = computed(() => {
-    return props.pokemon?.sprites?.front_default
+    return (
+      props.pokemon?.sprites["front_default"] ??
+      props.pokemon?.sprites?.["other"]?.["showdown"]?.["front_default"]
+    )
   })
 </script>
 

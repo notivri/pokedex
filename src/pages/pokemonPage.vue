@@ -94,7 +94,7 @@
   const tabs = ["about", "stats", "moves", "evolutions"]
 
   const pokemon = await getPokemon(route.params.id)
-  const species = await getPokemonSpecies(pokemon.id)
+  const species = await getPokemonSpecies(pokemon.species.name)
   const evolutionChain = await getPokemonEvolutionChain(
     species.evolution_chain?.url
   )
@@ -104,12 +104,12 @@
       const evoPokemonData = await getPokemon(evo.id)
       return {
         ...evo,
-        image: evoPokemonData.sprites.front_default,
+        image: evoPokemonData.sprites.other.showdown.front_default,
         types: evoPokemonData.types,
       }
     })
   )
-
+  console.log(evolutionChain)
   pokemon.species = species
 
   const bgColor = computed(() => {

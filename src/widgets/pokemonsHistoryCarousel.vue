@@ -32,13 +32,15 @@
   .container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.5rem;
+    border-bottom: 2px solid var(--color-border);
   }
 
   .carousel-wrapper {

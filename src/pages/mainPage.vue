@@ -16,7 +16,7 @@
     />
 
     <pokemonSearchGrid
-      v-if="displayedPokemons.length"
+      v-model="nameFilter"
       class="main-pokemon-grid"
       :pokemons="displayedPokemons"
       @go-to-pokemon="goToPokemon"
@@ -38,9 +38,27 @@
   const historyStore = useHistoryStore()
   const router = useRouter()
 
-  const limit = ref(20)
+  const limit = ref(42)
   const offset = ref(0)
+  const filteredPokemons = ref([])
   const displayedPokemons = ref([])
+  const nameFilter = ref("")
+  let timeout = null
+
+  watch(nameFilter, (value) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      filteredPokemons.value = value
+        ? allPokemons.value.filter((p) =>
+            p.name.startsWith(value.toLowerCase())
+          )
+        : [...allPokemons.value]
+
+      offset.value = 0
+      displayedPokemons.value = []
+      loadMore()
+    }, 300)
+  })
 
   const loadMoreTrigger = ref(null)
 
@@ -58,7 +76,7 @@
       await getAllPokemonsList()
     }
 
-    const nextSlice = allPokemons.value.slice(
+    const nextSlice = filteredPokemons.value.slice(
       offset.value,
       offset.value + limit.value
     )
@@ -86,7 +104,7 @@
           loadMore()
         }
       },
-      { root: null, threshold: 1.0 }
+      { root: null, threshold: 0.5 }
     )
 
     observer.observe(loadMoreTrigger.value)
@@ -95,6 +113,8 @@
   onMounted(async () => {
     await getAllPokemonsList()
     await loadMore()
+
+    filteredPokemons.value = [...allPokemons.value]
 
     setupIntersectionObserver()
   })
@@ -118,7 +138,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 
     width: 100%;
     max-width: 1280px;
@@ -147,7 +167,7 @@
   @media (min-width: 768px) {
     .wrapper {
       padding: 0 2rem 2rem 2rem;
-      gap: 2.5rem;
+      gap: 1rem;
     }
 
     .text {
