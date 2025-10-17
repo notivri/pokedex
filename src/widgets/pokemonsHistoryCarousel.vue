@@ -5,21 +5,33 @@
       <a @click="$emit('clearHistory')">Clear</a>
     </div>
 
-    <div class="carousel-wrapper">
-      <pokemon-card
+    <Swiper
+      :modules="[FreeMode]"
+      :free-mode="{ enabled: true }"
+      :space-between="8"
+      slides-per-view="auto"
+      class="swiper-container"
+    >
+      <SwiperSlide
         v-for="pokemon in props.pokemons"
         :key="pokemon.id"
-        :pokemon="pokemon"
-        class="carousel-item"
-        draggable="true"
-        @click="emits('goToPokemon', pokemon.id)"
-      />
-    </div>
+        class="swiper-slide"
+      >
+        <pokemon-card
+          :pokemon="pokemon"
+          @click="emits('goToPokemon', pokemon.id)"
+        />
+      </SwiperSlide>
+    </Swiper>
   </div>
 </template>
 
 <script setup>
   import PokemonCard from "@/entites/pokemon/ui/pokemonCard.vue"
+  import { Swiper, SwiperSlide } from "swiper/vue"
+  import { FreeMode } from "swiper/modules"
+  import "swiper/css"
+  import "swiper/css/free-mode"
 
   const props = defineProps({
     pokemons: Array,
@@ -33,41 +45,32 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-  }
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    border-bottom: 2px solid var(--color-border);
-  }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      border-bottom: 2px solid var(--color-border);
 
-  .carousel-wrapper {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    cursor: grab;
-  }
+      a {
+        font-size: 16px;
+        color: var(--color-text-secondary);
+        cursor: pointer;
 
-  .carousel-wrapper:active {
-    cursor: grabbing;
-  }
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
 
-  .carousel-item {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-  }
+    .swiper-container {
+      width: 100%;
 
-  a {
-    font-size: 16px;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
+      .swiper-slide {
+        flex: 0 0 auto;
+        width: 12rem;
+      }
     }
   }
 </style>
