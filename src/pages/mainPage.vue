@@ -15,7 +15,7 @@
       @clear-history="() => historyStore.clear()"
     />
 
-    <pokemonSearchGrid
+    <pokemonsSearchGrid
       v-model="nameFilter"
       class="main-pokemon-grid"
       :pokemons="displayedPokemons"
@@ -25,47 +25,39 @@
     <div ref="loadMoreTrigger" />
   </div>
 </template>
-
 <script setup>
-  import pokemonSearchGrid from "@/widgets/pokemonsSearchGrid.vue"
   import pokemonsHistoryCarousel from "@/widgets/pokemonsHistoryCarousel.vue"
+  import pokemonsSearchGrid from "@/widgets/pokemonsSearchGrid.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { useHistoryStore } from "@/entites/pokemon/stores/useHistoryStore"
   import { useRouter } from "vue-router"
-  import { watchEffect } from "vue"
+  import { useDebounce } from "@/shared/utils"
 
   const { allPokemons, getPokemon, getAllPokemonsList } = usePokemon()
   const historyStore = useHistoryStore()
   const router = useRouter()
 
-  const limit = ref(42)
+  const DEBOUNCE_TIME = 500
+
+  const isLoading = ref(false)
+  const limit = ref(7)
   const offset = ref(0)
-  const filteredPokemons = ref([])
   const displayedPokemons = ref([])
+  const historyPokemons = ref([])
   const nameFilter = ref("")
-  let timeout = null
-
-  watch(nameFilter, (value) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      filteredPokemons.value = value
-        ? allPokemons.value.filter(
-            (p) =>
-              p.name.startsWith(value.toLowerCase()) || p.id.startsWith(value)
-          )
-        : allPokemons.value
-
-      offset.value = 0
-      displayedPokemons.value = []
-      loadMore()
-    }, 300)
-  })
+  const debouncedNameFilter = useDebounce(nameFilter, DEBOUNCE_TIME)
 
   const loadMoreTrigger = ref(null)
 
-  let observer = null
+  const filteredPokemons = computed(() => {
+    if (!debouncedNameFilter.value) return allPokemons.value
 
-  const historyPokemons = ref([])
+    return allPokemons.value.filter(
+      (p) =>
+        p.name.startsWith(debouncedNameFilter.value.toLowerCase()) ||
+        p.id.startsWith(debouncedNameFilter.value)
+    )
+  })
 
   function goToPokemon(pokemonId) {
     historyStore.add(pokemonId)
@@ -73,31 +65,41 @@
   }
 
   async function loadMore() {
-    if (!allPokemons.value.length) {
-      await getAllPokemonsList()
+    if (isLoading.value) return
+    isLoading.value = true
+
+    try {
+      if (!allPokemons.value.length) {
+        await getAllPokemonsList()
+      }
+
+      const nextSlice = filteredPokemons.value.slice(
+        offset.value,
+        offset.value + limit.value
+      )
+      if (!nextSlice.length) return
+
+      const pokemonsData = await Promise.all(
+        nextSlice.map(async (p) => await getPokemon(p.name))
+      )
+
+      displayedPokemons.value.push(...pokemonsData)
+      offset.value += limit.value
+    } catch (error) {
+      console.error(error)
+    } finally {
+      isLoading.value = false
     }
-
-    const nextSlice = filteredPokemons.value.slice(
-      offset.value,
-      offset.value + limit.value
-    )
-    if (!nextSlice.length) return
-
-    const pokemonsData = await Promise.all(
-      nextSlice.map(async (p) => {
-        const data = await getPokemon(p.name)
-
-        return data
-      })
-    )
-
-    displayedPokemons.value.push(...pokemonsData)
-
-    offset.value += limit.value
   }
 
-  const setupIntersectionObserver = () => {
-    if (!loadMoreTrigger.value) return
+  let observer = null
+
+  onMounted(async () => {
+    const isMobile = window.innerWidth < 768
+    limit.value = isMobile ? 14 : 42
+
+    await getAllPokemonsList()
+    await loadMore()
 
     observer = new IntersectionObserver(
       ([entry]) => {
@@ -105,36 +107,40 @@
           loadMore()
         }
       },
-      { root: null, threshold: 0.5 }
+      { threshold: 0.5 }
     )
 
-    observer.observe(loadMoreTrigger.value)
-  }
-
-  onMounted(async () => {
-    await getAllPokemonsList()
-    await loadMore()
-
-    filteredPokemons.value = [...allPokemons.value]
-
-    setupIntersectionObserver()
+    if (loadMoreTrigger.value) {
+      observer.observe(loadMoreTrigger.value)
+    }
   })
 
   onUnmounted(() => {
-    observer?.disconnect()
+    if (observer && loadMoreTrigger.value) {
+      observer.unobserve(loadMoreTrigger.value)
+    }
   })
 
-  watchEffect(async () => {
-    const ids = historyStore.getIds()
-    if (!ids.length) {
-      historyPokemons.value = []
-      return
-    }
+  watch(
+    () => historyStore.getIds(),
+    async (ids) => {
+      if (!ids.length) {
+        historyPokemons.value = []
+        return
+      }
+      const pokemonsData = await Promise.all(ids.map((id) => getPokemon(id)))
+      historyPokemons.value = pokemonsData
+    },
+    { immediate: true }
+  )
 
-    const pokemonsData = await Promise.all(ids.map((id) => getPokemon(id)))
-    historyPokemons.value = pokemonsData
+  watch(filteredPokemons, () => {
+    offset.value = 0
+    displayedPokemons.value = []
+    loadMore()
   })
 </script>
+
 <style scoped>
   .wrapper {
     display: flex;

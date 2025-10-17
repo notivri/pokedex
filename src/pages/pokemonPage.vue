@@ -98,7 +98,7 @@
   pokemon.species = species
 
   const evolutionChain = await getPokemonEvolutionChain(
-    species.evolution_chain?.url
+    species?.evolution_chain?.url
   )
   const parsedEvolutionChain = parseEvolutionChain(evolutionChain)
   const detailedEvolutionChain = await Promise.all(

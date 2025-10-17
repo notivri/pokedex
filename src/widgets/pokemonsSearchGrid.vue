@@ -11,9 +11,10 @@
 
     <div class="grid-wrapper">
       <pokeCard
-        v-for="pokemon in props.pokemons"
+        v-for="(pokemon, index) in props.pokemons"
         :key="pokemon.id"
         :pokemon="pokemon"
+        v-bind="index === 0 ? { ref: props.firstCardRef } : {}"
         @click="emit('goToPokemon', pokemon.id)"
       />
     </div>
@@ -29,6 +30,7 @@
   const props = defineProps({
     pokemons: Array,
     modelValue: String,
+    firstCardRef: Object,
   })
 
   const emit = defineEmits(["update:modelValue", "goToPokemon"])
