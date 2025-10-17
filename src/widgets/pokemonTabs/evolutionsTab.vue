@@ -2,7 +2,7 @@
   <div class="evolutions-wrapper">
     <template v-for="(evolution, index) in props.chain" :key="index">
       <div v-if="evolution.atLevel" class="separator">
-        <span class="line"></span>
+        <span class="line" />
         <h3>Level: {{ evolution.atLevel }}</h3>
       </div>
 
@@ -52,7 +52,7 @@
 
       .line {
         width: 2px;
-        height: 5rem; 
+        height: 5rem;
         background-color: var(--color-border);
       }
     }

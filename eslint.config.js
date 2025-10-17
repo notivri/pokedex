@@ -26,9 +26,7 @@ export default defineConfig([
     },
   },
   {
-    rules: {
-      endOfLine: "auto",
-    },
+    rules: {},
     languageOptions: {
       sourceType: "module",
       globals: {

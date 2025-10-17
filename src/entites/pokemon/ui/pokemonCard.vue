@@ -56,6 +56,7 @@
 
 <style scoped>
   .card-wrapper {
+    min-width: 10rem;
     max-width: 20rem;
     min-height: 7.5rem;
     overflow: hidden;

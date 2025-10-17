@@ -4,7 +4,9 @@
       <h3 class="stat-name">
         {{ name.replace("-", " ").replace("special", "Sp.") }}
       </h3>
-      <h3 class="stat-value">{{ value }}</h3>
+      <h3 class="stat-value">
+        {{ value }}
+      </h3>
     </div>
 
     <div class="bars-wrapper">

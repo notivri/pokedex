@@ -14,7 +14,7 @@
         v-for="pokemon in props.pokemons"
         :key="pokemon.id"
         :pokemon="pokemon"
-        @click="handleCardClick(pokemon)"
+        @click="emit('goToPokemon', pokemon.id)"
       />
     </div>
   </div>
@@ -26,25 +26,17 @@
 
   import pokeCard from "@/entites/pokemon/ui/pokemonCard.vue"
 
-  import { useRouter } from "vue-router"
-
   const props = defineProps({
     pokemons: Array,
     modelValue: String,
   })
 
-  const emit = defineEmits(["update:modelValue"])
+  const emit = defineEmits(["update:modelValue", "goToPokemon"])
 
   const model = computed({
     get: () => props.modelValue,
     set: (value) => emit("update:modelValue", value),
   })
-
-  const router = useRouter()
-
-  function handleCardClick(pokemon) {
-    router.push({ name: "pokemonPage", params: { id: pokemon.id } })
-  }
 </script>
 
 <style scoped>
@@ -61,17 +53,25 @@
     gap: 0.5rem;
   }
 
+  .search-bar-wrapper > :first-child {
+    flex-grow: 1;
+    flex-shrink: 1;
+    max-width: 500px;
+  }
+
   .grid-wrapper {
     display: grid;
     gap: 0.5rem;
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 
-  .empty {
-    height: 50vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+  @media (min-width: 768px) {
+    .widget-wrapper {
+      gap: 1.5rem;
+    }
+
+    .search-bar-wrapper {
+      gap: 1rem;
+    }
   }
 </style>

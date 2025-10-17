@@ -58,7 +58,8 @@ const router = createRouter({
             {
               path: "evolutions",
               name: "pokemonEvolutions",
-              component: () => import("@/widgets/pokemonTabs/evolutionsTab.vue"),
+              component: () =>
+                import("@/widgets/pokemonTabs/evolutionsTab.vue"),
             },
           ],
         },

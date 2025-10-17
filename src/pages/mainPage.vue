@@ -8,9 +8,18 @@
       </h3>
     </div>
 
+    <pokemonsHistoryCarousel
+      v-if="historyPokemons.length"
+      :pokemons="historyPokemons"
+      @go-to-pokemon="goToPokemon"
+      @clear-history="() => historyStore.clear()"
+    />
+
     <pokemonSearchGrid
       v-if="displayedPokemons.length"
+      class="main-pokemon-grid"
       :pokemons="displayedPokemons"
+      @go-to-pokemon="goToPokemon"
     />
 
     <div ref="loadMoreTrigger" />
@@ -18,10 +27,16 @@
 </template>
 
 <script setup>
-  import pokemonSearchGrid from "@/widgets/pokemonSearchGrid.vue"
+  import pokemonSearchGrid from "@/widgets/pokemonsSearchGrid.vue"
+  import pokemonsHistoryCarousel from "@/widgets/pokemonsHistoryCarousel.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
+  import { useHistoryStore } from "@/entites/pokemon/stores/useHistoryStore"
+  import { useRouter } from "vue-router"
+  import { watchEffect } from "vue"
 
   const { allPokemons, getPokemon, getAllPokemonsList } = usePokemon()
+  const historyStore = useHistoryStore()
+  const router = useRouter()
 
   const limit = ref(20)
   const offset = ref(0)
@@ -30,6 +45,13 @@
   const loadMoreTrigger = ref(null)
 
   let observer = null
+
+  const historyPokemons = ref([])
+
+  function goToPokemon(pokemonId) {
+    historyStore.add(pokemonId)
+    router.push({ name: "pokemonPage", params: { id: pokemonId } })
+  }
 
   async function loadMore() {
     if (!allPokemons.value.length) {
@@ -73,25 +95,74 @@
   onMounted(async () => {
     await getAllPokemonsList()
     await loadMore()
+
     setupIntersectionObserver()
   })
 
   onUnmounted(() => {
     observer?.disconnect()
   })
-</script>
 
+  watchEffect(async () => {
+    const ids = historyStore.pokemonIds
+    if (!ids.length) {
+      historyPokemons.value = []
+      return
+    }
+
+    const pokemonsData = await Promise.all(ids.map((id) => getPokemon(id)))
+    historyPokemons.value = pokemonsData
+  })
+</script>
 <style scoped>
   .wrapper {
-    margin: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem 1rem 1rem;
+    box-sizing: border-box;
   }
 
   .text {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding-top: 1rem;
+
+    h1 {
+      font-size: 2.25rem;
+    }
+
+    h3 {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .wrapper {
+      padding: 0 2rem 2rem 2rem;
+      gap: 2.5rem;
+    }
+
+    .text {
+      align-items: center;
+      padding-top: 2rem;
+      text-align: center;
+    }
+
+    .text h1 {
+      font-size: 3rem;
+    }
+
+    .text h3 {
+      font-size: 1.15rem;
+      max-width: 650px;
+    }
   }
 </style>
