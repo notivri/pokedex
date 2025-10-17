@@ -24,7 +24,7 @@
         :src="pokemon?.sprites['other']['official-artwork']['front_default']"
       />
       <h1>{{ pokemon?.name }}</h1>
-      <h3>{{ pokemon?.species.genera[7].genus }}</h3>
+      <h3>{{ pokemon?.species?.genera?.[7]?.genus }}</h3>
     </div>
 
     <div class="content-container">
@@ -106,8 +106,10 @@
       const evoPokemonData = await getPokemon(evo.id)
       return {
         ...evo,
-        image: evoPokemonData.sprites.other.showdown.front_default,
-        types: evoPokemonData.types,
+        image:
+          evoPokemonData?.sprites?.other?.showdown?.front_default ??
+          evoPokemonData?.sprites?.front_default,
+        types: evoPokemonData?.types,
       }
     })
   )
