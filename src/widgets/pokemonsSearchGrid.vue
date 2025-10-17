@@ -66,14 +66,4 @@
     gap: 0.5rem;
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
-
-  @media (min-width: 768px) {
-    .widget-wrapper {
-      gap: 1.5rem;
-    }
-
-    .search-bar-wrapper {
-      gap: 1rem;
-    }
-  }
 </style>

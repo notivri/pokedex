@@ -174,7 +174,6 @@
   @media (min-width: 768px) {
     .wrapper {
       padding: 0 2rem 2rem 2rem;
-      gap: 1rem;
     }
 
     .text {
