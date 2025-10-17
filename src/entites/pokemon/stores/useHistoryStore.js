@@ -3,10 +3,8 @@ import { defineStore } from "pinia"
 const MAX_ITEMS = 15
 
 export const useHistoryStore = defineStore("history", {
-  id: "history",
-
   state: () => ({
-    pokemonIds: [],
+    pokemonIds: JSON.parse(localStorage.getItem("pokemon-history-ids") || "[]"),
   }),
 
   actions: {
@@ -14,12 +12,16 @@ export const useHistoryStore = defineStore("history", {
       if (!pokemonId || typeof pokemonId === "object") return
 
       this.pokemonIds = this.pokemonIds.filter((id) => id !== pokemonId)
-
       this.pokemonIds.unshift(pokemonId)
 
       if (this.pokemonIds.length > MAX_ITEMS) {
-        this.pokemonIds = this.pokemonIds.slice(-MAX_ITEMS)
+        this.pokemonIds = this.pokemonIds.slice(0, MAX_ITEMS)
       }
+
+      localStorage.setItem(
+        "pokemon-history-ids",
+        JSON.stringify(this.pokemonIds)
+      )
     },
 
     getIds() {
@@ -28,8 +30,7 @@ export const useHistoryStore = defineStore("history", {
 
     clear() {
       this.pokemonIds = []
+      localStorage.removeItem("pokemon-history-ids")
     },
   },
-
-  persist: true,
 })
