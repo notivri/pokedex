@@ -15,7 +15,7 @@ export const useHistoryStore = defineStore("history", {
       this.pokemonIds.unshift(pokemonId)
 
       if (this.pokemonIds.length > MAX_ITEMS) {
-        this.pokemonIds = this.pokemonIds.slice(0, MAX_ITEMS)
+        this.pokemonIds.pop()
       }
 
       localStorage.setItem(
