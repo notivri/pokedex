@@ -49,10 +49,11 @@
     clearTimeout(timeout)
     timeout = setTimeout(() => {
       filteredPokemons.value = value
-        ? allPokemons.value.filter((p) =>
-            p.name.startsWith(value.toLowerCase())
+        ? allPokemons.value.filter(
+            (p) =>
+              p.name.startsWith(value.toLowerCase()) || p.id.startsWith(value)
           )
-        : [...allPokemons.value]
+        : allPokemons.value
 
       offset.value = 0
       displayedPokemons.value = []

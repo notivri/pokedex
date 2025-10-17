@@ -45,7 +45,10 @@ async function getAllPokemonsList() {
   if (allPokemons.value.length) return
 
   const list = await api.fetchAllPokemons()
-  allPokemons.value = list
+  allPokemons.value = list.map((pokemon) => ({
+    ...pokemon,
+    id: getIdFromUrl(pokemon.url),
+  }))
 }
 
 export function usePokemon() {
