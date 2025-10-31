@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" v-if="!isLoading">
     <div
       class="sprite-wrapper"
       :style="{
@@ -19,10 +19,7 @@
           </template>
         </bButton>
       </div>
-      <img
-        class="image"
-        :src="pokemon?.sprites['other']['official-artwork']['front_default']"
-      />
+      <img class="image" :src="imageSrc" />
       <h1>{{ pokemon?.name }}</h1>
       <h3>{{ pokemon?.species?.genera?.[7]?.genus }}</h3>
     </div>
@@ -31,7 +28,7 @@
       <template v-if="isMobile">
         <bNavBar :tabs />
         <div v-if="pokemon" class="tabs-wrapper">
-          <router-view :pokemon :chain="detailedEvolutionChain" />
+          <router-view :pokemon :species :chain="detailedEvolutionChain" />
         </div>
       </template>
 
@@ -40,7 +37,7 @@
           <div class="desktop-column">
             <section class="desktop-section">
               <h2>About</h2>
-              <aboutTab :pokemon />
+              <aboutTab :pokemon :species />
             </section>
 
             <section class="desktop-section">
@@ -50,11 +47,6 @@
           </div>
 
           <div class="desktop-column">
-            <!-- <section class="desktop-section">
-              <h2>Moves</h2>
-              <movesTab :pokemon />
-            </section> -->
-
             <section class="desktop-section">
               <h2>Evolutions</h2>
               <evolutionsTab :chain="detailedEvolutionChain" />
@@ -67,76 +59,97 @@
 </template>
 
 <script setup>
-  import bButton from "@/shared/ui/bButton.vue"
-  import bNavBar from "@/shared/ui/bNavBar.vue"
-
-  import aboutTab from "@/widgets/pokemonTabs/aboutTab.vue"
-  import evolutionsTab from "@/widgets/pokemonTabs/evolutionsTab.vue"
-  // import movesTab from "@/widgets/pokemonTabs/movesTab.vue"
-  import statsTab from "@/widgets/pokemonTabs/statsTab.vue"
-
   import { useRoute, useRouter } from "vue-router"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { parseEvolutionChain } from "@/entites/pokemon/lib/utils"
   import { colors } from "@/entites/pokemon/lib/constants"
 
-  const { getPokemon, getPokemonSpecies, getPokemonEvolutionChain } =
-    usePokemon()
+  import bButton from "@/shared/ui/bButton.vue"
+  import bNavBar from "@/shared/ui/bNavBar.vue"
+  import aboutTab from "@/widgets/pokemonTabs/aboutTab.vue"
+  import evolutionsTab from "@/widgets/pokemonTabs/evolutionsTab.vue"
+  import statsTab from "@/widgets/pokemonTabs/statsTab.vue"
 
   const route = useRoute()
   const router = useRouter()
+  const { getPokemon, getPokemonSpecies, getPokemonEvolutionChain } =
+    usePokemon()
+
+  const mobileWidth = 768
+  const tabs = ["about", "stats", "evolutions"]
+
+  const isLoading = ref(true)
+  const pokemon = ref(null)
+  const species = ref(null)
+  const detailedEvolutionChain = ref([])
 
   const isMobile = ref(false)
-
-  let mediaQuerry
-  const mobileWidth = 768
-
-  const tabs = ["about", "stats", "moves", "evolutions"]
-
-  const pokemon = await getPokemon(route.params.id)
-  const species = await getPokemonSpecies(pokemon.species.name)
-  pokemon.species = species
-
-  const evolutionChain = await getPokemonEvolutionChain(
-    species?.evolution_chain?.url
-  )
-  const parsedEvolutionChain = parseEvolutionChain(evolutionChain)
-  const detailedEvolutionChain = await Promise.all(
-    parsedEvolutionChain.map(async (evo) => {
-      const evoPokemonData = await getPokemon(evo.id)
-      return {
-        ...evo,
-        image:
-          evoPokemonData?.sprites?.other?.showdown?.front_default ??
-          evoPokemonData?.sprites?.front_default,
-        types: evoPokemonData?.types,
-      }
-    })
-  )
+  let mediaQuery
 
   const bgColor = computed(() => {
-    return colors[pokemon?.types["0"].type.name]
+    const typeName = pokemon.value?.types?.[0]?.type?.name
+    return typeName ? colors[typeName] : "var(--color-bg-main)"
   })
 
-  const pokemonId = computed(() => {
-    return String(pokemon?.id).padStart(3, "0")
-  })
+  const pokemonId = computed(() =>
+    pokemon.value?.id ? String(pokemon.value.id).padStart(3, "0") : ""
+  )
 
-  const checkScreenSize = (e) => {
-    isMobile.value = e.matches
+  const imageSrc = computed(
+    () =>
+      pokemon.value?.sprites?.other?.["official-artwork"]?.front_default ??
+      pokemon.value?.sprites?.front_default ??
+      ""
+  )
+
+  async function loadPokemonData(id) {
+    try {
+      isLoading.value = true
+
+      const pokemonData = await getPokemon(id)
+      const speciesData = await getPokemonSpecies(pokemonData.species.name)
+      const evolutionChainData = await getPokemonEvolutionChain(
+        speciesData?.evolution_chain?.url
+      )
+
+      const parsed = parseEvolutionChain(evolutionChainData)
+      const detailed = await Promise.all(
+        parsed.map(async (evo) => {
+          const evoPokemonData = await getPokemon(evo.id)
+          return {
+            ...evo,
+            image:
+              evoPokemonData?.sprites["front_default"] ??
+              evoPokemonData?.sprites["other"]["showdown"]["front_default"],
+            types: evoPokemonData?.types,
+          }
+        })
+      )
+
+      pokemon.value = pokemonData
+      species.value = speciesData
+      detailedEvolutionChain.value = detailed
+    } catch (error) {
+      console.error("Cant fetch pokemon data ", error)
+      router.replace({ name: "mainPage" })
+    } finally {
+      isLoading.value = false
+    }
   }
 
   onMounted(() => {
-    mediaQuerry = window.matchMedia(`(max-width: ${mobileWidth}px)`)
-    mediaQuerry.addEventListener("change", checkScreenSize)
+    loadPokemonData(route.params.id)
 
-    isMobile.value = mediaQuerry.matches
+    mediaQuery = window.matchMedia(`(max-width: ${mobileWidth}px)`)
+    isMobile.value = mediaQuery.matches
+    mediaQuery.addEventListener("change", (e) => (isMobile.value = e.matches))
   })
 
   onUnmounted(() => {
-    mediaQuerry.removeEventListener("change", checkScreenSize)
+    mediaQuery?.removeEventListener("change", () => {})
   })
 </script>
+
 <style scoped>
   .wrapper {
     width: 100%;
@@ -181,7 +194,7 @@
   }
 
   .image {
-    width: 80%;
+    width: 400px;
     max-width: 20rem;
     height: auto;
     object-fit: contain;

@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <img id="pokeball" src="@/app/assets/icons/pokeball.svg" />
+    <img id="pokeball" src="@/app/assets/icons/pokeball-shadow.svg" />
 
     <img class="image" :src="spriteSrc" />
   </div>
@@ -62,6 +62,9 @@
     min-width: 10rem;
     max-width: 20rem;
     min-height: 7.5rem;
+    max-height: 10rem;
+    height: auto;
+    width: auto;
     overflow: hidden;
     position: relative;
     display: flex;

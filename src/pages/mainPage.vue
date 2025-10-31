@@ -15,23 +15,29 @@
       @clear-history="() => historyStore.clear()"
     />
 
+    <searchBar v-model="nameFilter" />
+
     <pokemonsSearchGrid
-      v-model="nameFilter"
       class="main-pokemon-grid"
       :pokemons="displayedPokemons"
       @go-to-pokemon="goToPokemon"
     />
 
+    <div v-if="isLoading" class="loader-container">
+      <bLoading />
+    </div>
     <div ref="loadMoreTrigger" />
   </div>
 </template>
 <script setup>
-  import pokemonsHistoryCarousel from "@/widgets/pokemonsHistoryCarousel.vue"
-  import pokemonsSearchGrid from "@/widgets/pokemonsSearchGrid.vue"
+  import pokemonsHistoryCarousel from "@/widgets/historyCarousel.vue"
+  import pokemonsSearchGrid from "@/widgets/cardsGrid.vue"
+  import searchBar from "@/widgets/searchBar.vue"
+  import bLoading from "@/shared/ui/bLoading.vue"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { useHistoryStore } from "@/entites/pokemon/stores/useHistoryStore"
   import { useRouter } from "vue-router"
-  import { useDebounce } from "@/shared/utils"
+  import { useObserver, useDebounce } from "@/shared/lib"
 
   const { allPokemons, getPokemon, getAllPokemonsList } = usePokemon()
   const historyStore = useHistoryStore()
@@ -48,6 +54,7 @@
   const debouncedNameFilter = useDebounce(nameFilter, DEBOUNCE_TIME)
 
   const loadMoreTrigger = ref(null)
+  useObserver(loadMoreTrigger, loadMore)
 
   const filteredPokemons = computed(() => {
     if (!debouncedNameFilter.value) return allPokemons.value
@@ -92,35 +99,6 @@
     }
   }
 
-  let observer = null
-
-  onMounted(async () => {
-    const isMobile = window.innerWidth < 768
-    limit.value = isMobile ? 14 : 42
-
-    await getAllPokemonsList()
-    await loadMore()
-
-    observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          loadMore()
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    if (loadMoreTrigger.value) {
-      observer.observe(loadMoreTrigger.value)
-    }
-  })
-
-  onUnmounted(() => {
-    if (observer && loadMoreTrigger.value) {
-      observer.unobserve(loadMoreTrigger.value)
-    }
-  })
-
   watch(
     () => historyStore.getIds(),
     async (ids) => {
@@ -128,6 +106,7 @@
         historyPokemons.value = []
         return
       }
+
       const pokemonsData = await Promise.all(ids.map((id) => getPokemon(id)))
       historyPokemons.value = pokemonsData
     },
@@ -138,6 +117,14 @@
     offset.value = 0
     displayedPokemons.value = []
     loadMore()
+  })
+
+  onMounted(async () => {
+    const isMobile = window.innerWidth < 768
+    limit.value = isMobile ? 14 : 30
+
+    await getAllPokemonsList()
+    await loadMore()
   })
 </script>
 
@@ -169,6 +156,13 @@
       font-weight: 500;
       line-height: 1.5;
     }
+  }
+
+  .loader-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
   }
 
   @media (min-width: 768px) {

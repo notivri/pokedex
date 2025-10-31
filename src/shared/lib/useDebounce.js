@@ -1,4 +1,4 @@
-export function useDebounce(reactiveState, delay) {
+export default function useDebounce(reactiveState, delay) {
   const debouncedValue = ref(reactiveState.value)
 
   let timeout

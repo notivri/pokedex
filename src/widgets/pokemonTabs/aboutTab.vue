@@ -1,6 +1,6 @@
-<template v-if="props.pokemon">
+<template>
   <div class="wrapper">
-    <h3>{{ flavor_text }}</h3>
+    <h3>{{ flavorText }}</h3>
 
     <bCard>
       <span class="text-wrapper">
@@ -48,15 +48,11 @@
 
   const props = defineProps({
     pokemon: Object,
+    species: Object,
   })
 
-  const pokemonSpecies = computed(() => {
-    return props.pokemon.species
-  })
-
-  const flavor_text = computed(() => {
-    const entries = pokemonSpecies.value?.flavor_text_entries ?? ""
-
+  const flavorText = computed(() => {
+    const entries = props.species?.flavor_text_entries ?? ""
     const englishEntry = entries.find((entry) => entry.language.name === "en")
 
     return englishEntry ? englishEntry.flavor_text : ""
