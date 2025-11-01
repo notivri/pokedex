@@ -1,5 +1,9 @@
 <template>
-  <div class="wrapper" v-if="!isLoading">
+  <div v-if="isLoading" class="loader-container">
+    <bLoading />
+  </div>
+
+  <div class="wrapper" v-else>
     <div
       class="sprite-wrapper"
       :style="{
@@ -59,6 +63,7 @@
 </template>
 
 <script setup>
+  import bLoading from "@/shared/ui/bLoading.vue"
   import { useRoute, useRouter } from "vue-router"
   import { usePokemon } from "@/entites/pokemon/model/usePokemon"
   import { parseEvolutionChain } from "@/entites/pokemon/lib/utils"
@@ -240,6 +245,15 @@
       font-size: 1.25rem;
       text-transform: capitalize;
     }
+  }
+
+  .loader-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   @media (min-width: 769px) {

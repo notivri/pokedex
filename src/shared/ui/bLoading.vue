@@ -1,11 +1,11 @@
 <template>
-  <span class="loader">
+  <span class="loading">
     <img src="@/app/assets/icons/pokeball.svg" alt="Loading..." />
   </span>
 </template>
 
 <style scoped>
-  .loader {
+  .loading {
     width: 50px;
     height: 50px;
     animation: rotation 1s linear infinite;
